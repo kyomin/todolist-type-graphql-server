@@ -31,6 +31,10 @@ const makeTypeList = (totalList) => {
 /* For Query Service */
 const todos = (parent, args, { user }) => {
     return new Promise((resolve, reject) => {
+        // if(!user) {
+        //     reject([]);
+        // }
+
         Todo.findAll()
         .then((todos) => {
             resolve( makeTypeList(todos)['TODO'] );
@@ -43,6 +47,10 @@ const todos = (parent, args, { user }) => {
 
 const dones = (parent, args, { user }) => {
     return new Promise((resolve, reject) => {
+        // if(!user) {
+        //     reject([]);
+        // }
+
         Todo.findAll()
         .then((todos) => {
             resolve( makeTypeList(todos)['DONE'] );
@@ -56,6 +64,10 @@ const dones = (parent, args, { user }) => {
 /* For Mutation Service */
 const makeTodo = (parent, { userId, description, status, deadline }, { user }) => {
     return new Promise((resolve, reject) => {
+        // if(!user) {
+        //     reject(false);
+        // }
+
         const newTodo = {
             userId,
             description,
@@ -75,6 +87,10 @@ const makeTodo = (parent, { userId, description, status, deadline }, { user }) =
 
 const updateTodoStatus = (parent, { id, changedStatus }, { user }) => {
     return new Promise((resolve, reject) => {
+        // if(!user) {
+        //     reject(false);
+        // }
+
         Todo.update({ status: changedStatus }, { where: {id: id} })
         .then(() => {
             resolve(true);     
@@ -87,6 +103,10 @@ const updateTodoStatus = (parent, { id, changedStatus }, { user }) => {
 
 const updateTodoDescription = (parent, { id, newDescription }, { user }) => {
     return new Promise((resolve, reject) => {
+        // if(!user) {
+        //     reject(false);
+        // }
+
         Todo.update({ description: newDescription }, { where: {id: id} })
         .then(() => {
             console.log('newDescription : ', newDescription);
@@ -98,6 +118,22 @@ const updateTodoDescription = (parent, { id, newDescription }, { user }) => {
     });
 }
 
+const deleteTodo = (parent, { id }, { user }) => {
+    return new Promise((resolve, reject) => {
+        // if(!user) {
+        //     reject(false);
+        // }
+
+        Todo.destroy({ where: {id: id} })
+        .then(() => {
+            resolve(true);
+        })
+        .catch(() => {
+            reject(false);
+        });
+    });
+}
+
 module.exports = {
     // queries
     todos,
@@ -106,5 +142,6 @@ module.exports = {
     // mutations
     makeTodo,
     updateTodoStatus,
-    updateTodoDescription
+    updateTodoDescription,
+    deleteTodo
 };

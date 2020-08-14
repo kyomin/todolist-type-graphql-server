@@ -29,7 +29,7 @@ const mutations = `
     makeTodo(userId: Int!, description: String!, status: TodoStatus!, deadline: DateTime!): Boolean!
     updateTodoStatus(id: Int!, changedStatus: TodoStatus!): Boolean!
     updateTodoDescription(id: Int!, newDescription: String!): Boolean!
-    deleteTodo: Boolean!
+    deleteTodo(id: Int!): Boolean!
 `;
 
 module.exports = {

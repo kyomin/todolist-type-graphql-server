@@ -1,4 +1,5 @@
 const todoService = require('../services/todo');
+const e = require('express');
 
 //=======================================
 //             Todo Controller
@@ -56,6 +57,16 @@ const updateTodoDescription = (parent, { id, newDescription }, { user }) => {
     });
 }
 
+const deleteTodo = (parent, { id }, { user }) => {
+    return todoService.deleteTodo(parent, { id }, { user })
+    .then((result) => {
+        return result
+    })
+    .catch((err) => {
+        return err;
+    })
+}
+
 module.exports = {
     // queries
     todos,
@@ -64,5 +75,6 @@ module.exports = {
     // mutations
     makeTodo,
     updateTodoStatus,
-    updateTodoDescription
+    updateTodoDescription,
+    deleteTodo
 };

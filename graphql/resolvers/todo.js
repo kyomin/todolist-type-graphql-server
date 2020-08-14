@@ -12,7 +12,8 @@ const queries = {
 const mutations = {
     makeTodo: todoController.makeTodo,
     updateTodoStatus: todoController.updateTodoStatus,
-    updateTodoDescription: todoController.updateTodoDescription
+    updateTodoDescription: todoController.updateTodoDescription,
+    deleteTodo: todoController.deleteTodo
 };
 
 module.exports = {
