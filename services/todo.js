@@ -73,7 +73,7 @@ const makeTodo = (parent, { userId, description, status, deadline }, { user }) =
     });
 }
 
-const updateStatus = (parent, { id, changedStatus }, { user }) => {
+const updateTodoStatus = (parent, { id, changedStatus }, { user }) => {
     return new Promise((resolve, reject) => {
         Todo.update({ status: changedStatus }, { where: {id: id} })
         .then(() => {
@@ -85,6 +85,19 @@ const updateStatus = (parent, { id, changedStatus }, { user }) => {
     });
 }
 
+const updateTodoDescription = (parent, { id, newDescription }, { user }) => {
+    return new Promise((resolve, reject) => {
+        Todo.update({ description: newDescription }, { where: {id: id} })
+        .then(() => {
+            console.log('newDescription : ', newDescription);
+            resolve(true);
+        })
+        .catch((err) => {
+            reject(false);
+        }); 
+    });
+}
+
 module.exports = {
     // queries
     todos,
@@ -92,5 +105,6 @@ module.exports = {
 
     // mutations
     makeTodo,
-    updateStatus
+    updateTodoStatus,
+    updateTodoDescription
 };

@@ -36,8 +36,18 @@ const makeTodo = (parent, { userId, description, status, deadline }, { user }) =
     });
 }
 
-const updateStatus = (parent, { id, changedStatus }, { user }) => {
-    return todoService.updateStatus(parent, { id, changedStatus }, { user })
+const updateTodoStatus = (parent, { id, changedStatus }, { user }) => {
+    return todoService.updateTodoStatus(parent, { id, changedStatus }, { user })
+    .then((result) => {
+        return result;
+    })
+    .catch((err) => {
+        return err;
+    });
+}
+
+const updateTodoDescription = (parent, { id, newDescription }, { user }) => {
+    return todoService.updateTodoDescription(parent, { id, newDescription }, { user })
     .then((result) => {
         return result;
     })
@@ -53,5 +63,6 @@ module.exports = {
 
     // mutations
     makeTodo,
-    updateStatus
+    updateTodoStatus,
+    updateTodoDescription
 };
