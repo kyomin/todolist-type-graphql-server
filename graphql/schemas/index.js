@@ -24,19 +24,23 @@ const { gql } = require('apollo-server');
 
 const movieSchema = require('./movie');
 const userSchema = require('./user');
+const todoSchema = require('./todo');
 
 const typeDefs = gql`
     ${movieSchema.types}
     ${userSchema.types}
+    ${todoSchema.types}
 
     type Query {
         ${movieSchema.queries}
         ${userSchema.queries}
+        ${todoSchema.queries}
     }
 
     type Mutation {
         ${movieSchema.mutations}
         ${userSchema.mutations}
+        ${todoSchema.mutations}
     }
 `
 

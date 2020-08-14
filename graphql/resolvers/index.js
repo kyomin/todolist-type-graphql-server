@@ -18,15 +18,18 @@
 */
 const movieResolver = require('./movie');
 const userResolver = require('./user');
+const todoResolver = require('./todo');
 
 const resolvers = {
     Query: {
         ...movieResolver.queries,
-        ...userResolver.queries
+        ...userResolver.queries,
+        ...todoResolver.queries
     },
     Mutation: {
         ...movieResolver.mutations,
-        ...userResolver.mutations
+        ...userResolver.mutations,
+        ...todoResolver.mutations
     }
 };
 
