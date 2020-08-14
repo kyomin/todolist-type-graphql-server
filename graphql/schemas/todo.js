@@ -3,12 +3,19 @@
 //=======================================
 
 const types = `
+    scalar DateTime
+
     enum TodoStatus {
         TODO
         DONE
     }
 
-    scalar DateTime
+    input MakeTodoInput {
+        userId: Int!, 
+        description: String!, 
+        status: TodoStatus!, 
+        deadline: DateTime!
+    }
 
     type Todo {
         id: Int
@@ -26,7 +33,7 @@ const queries = `
 `;
 
 const mutations = `
-    makeTodo(userId: Int!, description: String!, status: TodoStatus!, deadline: DateTime!): Boolean!
+    makeTodo(makeTodoInput: MakeTodoInput!): Boolean!
     updateTodoStatus(id: Int!, changedStatus: TodoStatus!): Boolean!
     updateTodoDescription(id: Int!, newDescription: String!): Boolean!
     deleteTodo(id: Int!): Boolean!

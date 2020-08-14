@@ -56,7 +56,7 @@ const dones = (parent, args, { user }) => {
 }
 
 /* For Mutation Service */
-const makeTodo = (parent, { userId, description, status, deadline }, { user }) => {
+const makeTodo = (parent, { makeTodoInput: { userId, description, status, deadline } }, { user }) => {
     return new Promise((resolve, reject) => {
         // if(!user) {
         //     reject(false);
@@ -84,7 +84,7 @@ const updateTodoStatus = (parent, { id, changedStatus }, { user }) => {
         // if(!user) {
         //     reject(false);
         // }
-
+        console.log('update todo status 서비스 호출 !!');
         Todo.update({ status: changedStatus }, { where: {id: id} })
         .then(() => {
             resolve(true);     
@@ -103,7 +103,6 @@ const updateTodoDescription = (parent, { id, newDescription }, { user }) => {
 
         Todo.update({ description: newDescription }, { where: {id: id} })
         .then(() => {
-            console.log('newDescription : ', newDescription);
             resolve(true);
         })
         .catch((err) => {

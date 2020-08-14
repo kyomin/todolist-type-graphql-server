@@ -27,8 +27,8 @@ const dones = (parent, args, { user }) => {
 }
 
 /* For Mutation Controll */
-const makeTodo = (parent, { userId, description, status, deadline }, { user }) => {
-    return todoService.makeTodo(parent, { userId, description, status, deadline }, { user })
+const makeTodo = (parent, { makeTodoInput: { userId, description, status, deadline } }, { user }) => {
+    return todoService.makeTodo(parent, { makeTodoInput: { userId, description, status, deadline } }, { user })
     .then((result) => {
         return result;
     })
