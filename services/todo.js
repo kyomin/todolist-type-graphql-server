@@ -1,31 +1,25 @@
 const { Todo } = require('../models');
-const { todoStatusEnumList } = require('../utils/constants');
 
 //=======================================
 //             Todo Service
 //=======================================
 
 /* For Auxiliary Function */
-const makeTypeList = (totalList) => {
-    const resultMap = {};
+const returnMatchStateList = (totalList, targetState) => {
+    const resultList = [];
     const len = totalList.length;
-
-    // 일단 empty array로 모든 state에 매핑 시킨다.
-    for(let idx = 0; idx < todoStatusEnumList.length; idx++) {
-        const status =  todoStatusEnumList[idx];
-
-        resultMap[status] = [];
-    }
 
     // 일치하는 status에 데이터를 추가하는 작업이다.
     for(let idx = 0; idx < len; idx++) {
         const curStatus = totalList[idx].status;
         const curData = totalList[idx];
 
-        resultMap[curStatus].push(curData);
+        if(curStatus === targetState) {
+            resultList.push(curData)
+        }
     }
 
-    return resultMap;
+    return resultList;
 }
 
 /* For Query Service */
@@ -37,7 +31,7 @@ const todos = (parent, args, { user }) => {
 
         Todo.findAll()
         .then((todos) => {
-            resolve( makeTypeList(todos)['TODO'] );
+            resolve( returnMatchStateList(todos, 'TODO') );
         })
         .catch(() => {
             reject([]);
@@ -53,7 +47,7 @@ const dones = (parent, args, { user }) => {
 
         Todo.findAll()
         .then((todos) => {
-            resolve( makeTypeList(todos)['DONE'] );
+            resolve( returnMatchStateList(todos, 'DONE') );
         })
         .catch(() => {
             reject([]);
