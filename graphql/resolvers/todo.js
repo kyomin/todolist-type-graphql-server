@@ -10,7 +10,8 @@ const queries = {
 };
 
 const mutations = {
-    makeTodo: todoController.makeTodo
+    makeTodo: todoController.makeTodo,
+    updateStatus: todoController.updateStatus
 };
 
 module.exports = {

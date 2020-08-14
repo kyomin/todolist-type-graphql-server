@@ -27,7 +27,8 @@ const queries = `
 
 const mutations = `
     makeTodo(userId: Int!, description: String!, status: TodoStatus!, deadline: DateTime!): Boolean!
-    updateTodo(description: String, status: TodoStatus): Boolean!
+    updateStatus(id: Int!, changedStatus: TodoStatus): Boolean!
+    
     deleteTodo: Boolean!
 `;
 

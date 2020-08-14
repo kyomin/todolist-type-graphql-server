@@ -73,11 +73,24 @@ const makeTodo = (parent, { userId, description, status, deadline }, { user }) =
     });
 }
 
+const updateStatus = (parent, { id, changedStatus }, { user }) => {
+    return new Promise((resolve, reject) => {
+        Todo.update({ status: changedStatus }, { where: {id: id} })
+        .then(() => {
+            resolve(true);     
+        })
+        .catch(() => {
+            reject(false);
+        })
+    });
+}
+
 module.exports = {
     // queries
     todos,
     dones,
 
     // mutations
-    makeTodo
+    makeTodo,
+    updateStatus
 };

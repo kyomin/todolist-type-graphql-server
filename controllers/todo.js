@@ -36,11 +36,22 @@ const makeTodo = (parent, { userId, description, status, deadline }, { user }) =
     });
 }
 
+const updateStatus = (parent, { id, changedStatus }, { user }) => {
+    return todoService.updateStatus(parent, { id, changedStatus }, { user })
+    .then((result) => {
+        return result;
+    })
+    .catch((err) => {
+        return err;
+    });
+}
+
 module.exports = {
     // queries
     todos,
     dones,
 
     // mutations
-    makeTodo
+    makeTodo,
+    updateStatus
 };
