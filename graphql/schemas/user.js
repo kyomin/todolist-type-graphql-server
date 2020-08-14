@@ -4,12 +4,11 @@
 
 const types = `
   type User {
-    id: Int!
+    uno: Int!
     name: String!
+    password: String!
     email: String!
-    passwordHash: String!
     roles: [String!]!
-    token: String
   }
 
   input SignupInput {
@@ -25,7 +24,7 @@ const types = `
 `;
 
 const queries = `
-    users: [User]!
+    userList: [User]!
     me: User!
 `;
 

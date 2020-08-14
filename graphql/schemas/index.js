@@ -20,6 +20,7 @@
     ! : Not Nullable. 데이터가 꼭 있어야 한다.
     [] : 배열
 */
+
 const { gql } = require('apollo-server');
 
 const movieSchema = require('./movie');
