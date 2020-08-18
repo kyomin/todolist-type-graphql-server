@@ -30,7 +30,7 @@ const queries = `
 
 const mutations = `
     signup(signupInput: SignupInput!): Boolean!
-    login(loginInput: LoginInput!): Boolean!
+    login(loginInput: LoginInput!): String!
 `;
 
 module.exports = {
