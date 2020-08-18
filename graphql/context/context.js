@@ -3,7 +3,7 @@
     Context는 모든 GraphQL API 요청이 불릴 때마다 '항상' 실행되는 함수이다.
     보통 Context에 사용자 인증 정보를 저장해서 특정 API 실행 권한이 있는지 확인하는 용도로 사용한다.
 */
-const { users } = require('../../database/users');
+const { users } = require('../../models/users');
 
 const context = ({ req }) => {
     const token = req.headers.authorization || '';

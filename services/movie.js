@@ -1,4 +1,4 @@
-const { movies } = require('../database/movies');
+const { movies } = require('../models/movies');
 
 //=======================================
 //             Movie Service

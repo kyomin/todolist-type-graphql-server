@@ -56,7 +56,7 @@ const signup = (parent, { signupInput: {name, email, password} }) => {
 
 // User login Method 
 const login = (parent, { loginInput: {email, password} }) => {
-  
+
   return new Promise((resolve, reject) => {
 
     // email 이 존재하지 않으면 false 반환, 존재하면 bcrypt.compare를 이용하여 password 검사
@@ -96,7 +96,7 @@ const getToken = (email, password) => {
       {
         "email": email         // payload 구간
       },
-      'SeCrEtKeYfOrHaShInG',   // 임시로 여기에 선언, 현재 임시로 보관중   
+      'SeCrEtKeYfOrHaShInG',   // 임시로 여기에 선언, 현재 임시로 보관중    
       {
         expiresIn: '2h',       // 만료 기간을 잡는 옵션
         issuer: 'tempissuer',  // 토큰 발급자
@@ -109,8 +109,29 @@ const getToken = (email, password) => {
   });  // return promise
 }
 
+// User verify Token
+const verifytoken = (parent, { verifyInput: {token} }) => {
+
+  const clientToken = token;
+  const decoded = jwt.verify(clientToken, 'SeCrEtKeYfOrHaShInG'); // 임시 비밀키
+
+  try {
+    if (decoded) {
+      console.log("decodede  ! ! ! ! ", decoded);
+      //return decoded; // 유효한 경우 디코딩하여 사용자 정보를 반환
+      return "sucess";
+    } else {
+      return "error"
+    }
+
+  }catch(err) {
+    return "token expired"; // 만료가 되었을 경우
+  }
+}
+
 module.exports = {
   userList,
   signup,
-  login
+  login,
+  verifytoken
 }

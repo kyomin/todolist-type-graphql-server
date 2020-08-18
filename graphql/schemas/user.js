@@ -18,8 +18,12 @@ const types = `
   }
 
   input LoginInput {
-    email: String!, 
+    email: String!
     password: String!
+  }
+
+  input VerifyInput {
+    token: String!
   }
 `;
 
@@ -28,9 +32,11 @@ const queries = `
     me: User!
 `;
 
+// verifytoken add
 const mutations = `
     signup(signupInput: SignupInput!): Boolean!
     login(loginInput: LoginInput!): String!
+    verifytoken(verifyInput: VerifyInput!): String!
 `;
 
 module.exports = {

@@ -22,6 +22,7 @@ const server = new ApolloServer({
     context
 });
 
+
 // listen 함수로 웹 서버 실행
 server.listen().then(({ url }) => {
     console.log(`🚀  Server ready at ${url}`);
