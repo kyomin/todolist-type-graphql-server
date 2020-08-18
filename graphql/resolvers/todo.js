@@ -5,18 +5,17 @@ const todoController = require('../../controllers/todo');
 //=======================================
 
 const queries = {
-    todos: todoController.todos,
-    dones: todoController.dones
+  todos: todoController.todos
 };
 
 const mutations = {
-    makeTodo: todoController.makeTodo,
-    updateTodoStatus: todoController.updateTodoStatus,
-    updateTodoDescription: todoController.updateTodoDescription,
-    deleteTodo: todoController.deleteTodo
+  makeTodo: todoController.makeTodo,
+  updateTodoStatus: todoController.updateTodoStatus,
+  updateTodoDescription: todoController.updateTodoDescription,
+  deleteTodo: todoController.deleteTodo
 };
 
 module.exports = {
-    queries,
-    mutations
+  queries,
+  mutations
 };
