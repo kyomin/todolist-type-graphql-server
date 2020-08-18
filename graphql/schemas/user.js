@@ -11,6 +11,11 @@ const types = `
     roles: [String!]!
   }
 
+  type Token{
+    email: String!
+    sub: String!
+  }
+
   input SignupInput {
     name: String!
     email: String!
@@ -32,11 +37,10 @@ const queries = `
     me: User!
 `;
 
-// verifytoken add
 const mutations = `
     signup(signupInput: SignupInput!): Boolean!
     login(loginInput: LoginInput!): String!
-    verifytoken(verifyInput: VerifyInput!): String!
+    verifytoken(verifyInput: VerifyInput!): Token!
 `;
 
 module.exports = {

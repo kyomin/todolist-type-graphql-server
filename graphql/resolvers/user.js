@@ -4,7 +4,6 @@ const userController = require('../../controllers/user');
 //             User Resolver
 //=======================================
 
-
 const queries = {
   userList: userController.userList
 };

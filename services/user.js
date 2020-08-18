@@ -2,7 +2,7 @@ const { users } = require('../models');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
 const saltRounds = 10;
-// const jwtObj = require('../config/jwt')   - 비밀키 보관소
+const jwtObj = require('../config/jwt');  
 
 // User List Method - temp Method
 const userList = () => {
@@ -30,7 +30,7 @@ const signup = (parent, { signupInput: {name, email, password} }) => {
       }
     })
     .catch((err) => {
-      reject(err);
+      reject(new Error("ERROR"));
     })
     
     // 같은 email을 갖는 user가 없다면 DB에 user 생성 후, true를 반환
@@ -96,14 +96,14 @@ const getToken = (email, password) => {
       {
         "email": email         // payload 구간
       },
-      'SeCrEtKeYfOrHaShInG',   // 임시로 여기에 선언, 현재 임시로 보관중    
+      jwtObj.secret,   // 임시로 여기에 선언, 현재 임시로 보관중    
       {
         expiresIn: '2h',       // 만료 기간을 잡는 옵션
         issuer: 'tempissuer',  // 토큰 발급자
         subject: 'temptitle'   // 토큰 제목
       }, 
       function(err,token){
-        if(err) reject(err)      // 생성 후 콜백함수
+        if(err) reject(new Error("ERROR"))    // 생성 후 콜백함수
         else resolve(token)
       })
   });  // return promise
@@ -113,20 +113,16 @@ const getToken = (email, password) => {
 const verifytoken = (parent, { verifyInput: {token} }) => {
 
   const clientToken = token;
-  const decoded = jwt.verify(clientToken, 'SeCrEtKeYfOrHaShInG'); // 임시 비밀키
 
-  try {
-    if (decoded) {
-      console.log("decodede  ! ! ! ! ", decoded);
-      //return decoded; // 유효한 경우 디코딩하여 사용자 정보를 반환
-      return "sucess";
-    } else {
-      return "error"
-    }
-
-  }catch(err) {
-    return "token expired"; // 만료가 되었을 경우
-  }
+  return new Promise((resolve, reject) => {
+    // 임시 비밀키, verify를 이용하여 유효한지 검사
+    jwt.verify(clientToken, jwtObj.secret,(err,decoded) => {
+      if(err){
+        resolve(new Error("ERROR"));   // 만료 or 형식에 맞지 않는 경우 ERROR 
+      }       
+      else resolve(decoded);
+    }); 
+  });
 }
 
 module.exports = {
