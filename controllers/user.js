@@ -18,13 +18,9 @@ const login = (parent, { loginInput: {email, password} }) => {
     return userService.login(parent, { loginInput: {email, password} });
 }
 
-const logout = (parent, args, { user }) => {
-    return userService.logout(parent, args, { user });
-}
 
 module.exports = {
     userList,
     signup,
-    login,
-    logout
+    login
 };

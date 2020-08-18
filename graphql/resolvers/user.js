@@ -11,8 +11,7 @@ const queries = {
 
 const mutations = {
     signup: userController.signup,
-    login: userController.login,
-    logout: userController.logout
+    login: userController.login
 }
 
 module.exports = {
