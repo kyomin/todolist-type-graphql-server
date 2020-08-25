@@ -19,7 +19,7 @@ export class TodoService {
       return Todo.find({
         where: { id: LessThan(cursor) },
         order: { id: "DESC" },
-        take: GET_TODO_LIMIT
+        take: GET_TODO_LIMIT + 1
       })
       .then((result) => {
         return result;
@@ -31,7 +31,7 @@ export class TodoService {
     } else {
       return Todo.find({
         order: { id: "DESC" },
-        take: GET_TODO_LIMIT
+        take: GET_TODO_LIMIT + 1
       })
       .then((result) => {
         return result;
@@ -51,7 +51,7 @@ export class TodoService {
           status: status
         },
         order: { id: "DESC" },
-        take: GET_TODO_LIMIT 
+        take: GET_TODO_LIMIT + 1
       })
       .then((result) => {
         return result;
@@ -63,7 +63,7 @@ export class TodoService {
     } else {
       return Todo.find({ 
         order: { id: "DESC" },
-        take: GET_TODO_LIMIT 
+        take: GET_TODO_LIMIT + 1
       })
       .then((result) => {
         return result;
@@ -83,7 +83,7 @@ export class TodoService {
           userId: userId
         },
         order: { id: "DESC" },
-        take: GET_TODO_LIMIT
+        take: GET_TODO_LIMIT + 1
       })
       .then((result) => {
         return result;
@@ -96,7 +96,7 @@ export class TodoService {
       return Todo.find({
         where: { userId: userId },
         order: { id: "DESC" },
-        take: GET_TODO_LIMIT
+        take: GET_TODO_LIMIT + 1
       })
       .then((result) => {
         return result;
@@ -117,7 +117,7 @@ export class TodoService {
           status: status
         },
         order: { id: "DESC" },
-        take: GET_TODO_LIMIT
+        take: GET_TODO_LIMIT + 1
       })
       .then((result) => {
         return result;
@@ -133,7 +133,7 @@ export class TodoService {
           status: status
         },
         order: { id: "DESC" },
-        take: GET_TODO_LIMIT
+        take: GET_TODO_LIMIT + 1
       })
       .then((result) => {
         return result;
