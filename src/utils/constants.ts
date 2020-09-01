@@ -1,1 +1,1 @@
-export const GET_TODO_LIMIT : number = 3;
+export const GET_TODO_LIMIT: number = 3;

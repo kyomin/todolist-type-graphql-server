@@ -1,7 +1,4 @@
-import { UserService } from './UserService';
-import { TodoService } from './TodoService';
+import { UserService } from "./UserService/UserService";
+import { TodoService } from "./TodoService/TodoService";
 
-export {
-  UserService,
-  TodoService
-};
+export { UserService, TodoService };

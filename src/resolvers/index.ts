@@ -1,7 +1,4 @@
-import { TodoResolver } from './TodoResolver';
-import { UserResolver } from './UserResolver';
+import { TodoResolver } from "./Todo/TodoResolver";
+import { UserResolver } from "./User/UserResolver";
 
-export { 
-  TodoResolver,
-  UserResolver
-};
+export { TodoResolver, UserResolver };

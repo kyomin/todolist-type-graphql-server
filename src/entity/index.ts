@@ -1,10 +1,12 @@
-import { Todo, TodoStatus, MakeTodoInput } from './Todo';
-import { User } from './User';
+/* For Validation Entity */
+import { Validation } from "./Validation/Validation";
 
-export {
-  Todo,
-  TodoStatus,
-  MakeTodoInput,
+/* For Todo Entity */
+import { Todo } from "./Todo/Todo";
+import { MakeTodoInput } from "./Todo/MakeTodoInput";
+import { TodoStatus } from "./Todo/TodoStatus";
 
-  User
-};
+/* For User Entity */
+import { User } from "./User/User";
+
+export { Validation, Todo, TodoStatus, MakeTodoInput, User };
