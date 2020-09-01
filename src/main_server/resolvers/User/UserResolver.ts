@@ -3,15 +3,15 @@ import { ApolloError } from "apollo-server-express";
 
 import { User, Todo, TodoStatus } from "../../entity";
 import { UserService, TodoService } from "../../services";
-import { ExceptionCodeAndMessage } from "../../exceptions/ExceptionCodeAndMessage";
+import { ErrorInfo } from "../../../../error/ErrorInfo";
 
 @Resolver((returnType) => User)
 export class UserResolver {
   @Query((returnType) => User)
   async user(@Arg("id") id: number): Promise<User> {
-    let queryResult: User | ExceptionCodeAndMessage = await UserService.findOneById(id);
+    let queryResult: User | ErrorInfo = await UserService.findOneById(id);
 
-    if (queryResult instanceof ExceptionCodeAndMessage) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
+    if (queryResult instanceof ErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
 
     return queryResult;
   }
@@ -23,21 +23,21 @@ export class UserResolver {
     @Arg("cursor", { nullable: true }) cursor?: number
   ): Promise<Todo[]> {
     const { id } = user;
-    let queryResult: Todo[] | ExceptionCodeAndMessage;
+    let queryResult: Todo[] | ErrorInfo;
 
     if (!status) queryResult = await TodoService.findAllByUserId(id, cursor);
     else queryResult = await TodoService.findAllByUserIdAndStatus(id, status, cursor);
 
-    if (queryResult instanceof ExceptionCodeAndMessage) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
+    if (queryResult instanceof ErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
 
     return queryResult;
   }
 
   @Mutation((returnType) => User)
   async signup(@Arg("name") name: string): Promise<User> {
-    let queryResult: User | ExceptionCodeAndMessage = await UserService.save(name);
+    let queryResult: User | ErrorInfo = await UserService.save(name);
 
-    if (queryResult instanceof ExceptionCodeAndMessage) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
+    if (queryResult instanceof ErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
 
     return queryResult;
   }

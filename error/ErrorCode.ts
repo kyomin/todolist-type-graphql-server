@@ -1,4 +1,4 @@
-export enum ExceptionCodeEnum {
+export enum ErrorCode {
   ARGUMENT_VALIDATION_ERROR = "ARGUMENT_VALIDATION_ERROR",
   INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR",
 }

@@ -1,4 +1,4 @@
-export class ExceptionCodeAndMessage {
+export class ErrorInfo {
   code: string;
   message: string;
 

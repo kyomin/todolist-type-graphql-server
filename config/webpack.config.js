@@ -1,7 +1,9 @@
 const path = require("path");
 
 module.exports = {
-  entry: "./src/App.ts",
+  entry: {
+    main: ["./src/main_server/MainServer.ts", "./src/auth_server/AuthServer.ts"],
+  },
   module: {
     rules: [
       {

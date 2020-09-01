@@ -6,7 +6,7 @@ import { Todo } from "../index";
 @ObjectType()
 @Entity()
 export class User extends BaseEntity {
-  @Field(() => ID, {})
+  @Field(() => ID)
   @PrimaryGeneratedColumn()
   id: number;
 

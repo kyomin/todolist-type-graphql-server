@@ -1,6 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, BaseEntity, ManyToOne, CreateDateColumn } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn } from "typeorm";
 import { ObjectType, Field, Int, ID } from "type-graphql";
-import { Min, MaxLength, MinLength } from "class-validator";
 
 import { User, TodoStatus, Validation } from "../index";
 

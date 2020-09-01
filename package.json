@@ -4,7 +4,9 @@
   "description": "make todolist using TypeScript & GraphQL",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --watch src --delay 1 --exec 'ts-node' src/App.ts",
+    "auth": "nodemon --watch src --delay 1 --exec 'ts-node' src/auth_server/AuthServer.ts",
+    "main": "nodemon --watch src --delay 1 --exec 'ts-node' src/main_server/MainServer.ts",
+    "start": "concurrently \"npm run main\" \"npm run auth\"",
     "build": "webpack --config webpack.config.js"
   },
   "author": "kyomin",
