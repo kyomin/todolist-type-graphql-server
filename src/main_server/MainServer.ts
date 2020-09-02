@@ -7,7 +7,7 @@ import { logger } from "../../config/winston";
 require("dotenv").config();
 
 /* Import GraphQL Resolvers */
-import { TodoResolver, UserResolver } from "./resolvers";
+import { TodoResolver, UserResolver } from "./resolver";
 
 class MainServer {
   public app: express.Application;
@@ -51,6 +51,7 @@ const boostMainServer = async () => {
 
     logger.info("Database for main server connection is successful with typeorm");
   } catch (err) {
+    console.error("메인 서버 DB 에러 ! : ", err);
     logger.error(err);
   }
 

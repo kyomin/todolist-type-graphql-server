@@ -1,8 +1,10 @@
 import { Resolver, FieldResolver, Query, Mutation, Arg, Root } from "type-graphql";
 import { ApolloError } from "apollo-server-express";
 
-import { User, Todo, TodoStatus, MakeTodoInput } from "../../entity";
-import { TodoService, UserService } from "../../services";
+import { User, Todo } from "../../entity";
+import { MakeTodoInput } from "../../dto";
+import { TodoStatus } from "../../enum";
+import { TodoService, UserService } from "../../service";
 import { ErrorInfo } from "../../../../error/ErrorInfo";
 import { ErrorCode } from "../../../../error/ErrorCode";
 

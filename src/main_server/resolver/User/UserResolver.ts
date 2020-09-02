@@ -1,8 +1,11 @@
 import { Resolver, FieldResolver, Query, Mutation, Arg, Root } from "type-graphql";
 import { ApolloError } from "apollo-server-express";
 
-import { User, Todo, TodoStatus } from "../../entity";
-import { UserService, TodoService } from "../../services";
+import { User, Todo } from "../../entity";
+import { UserService, TodoService } from "../../service";
+import { RegisterInput } from "../../dto";
+import { RegisterOutput } from "../../dto";
+import { TodoStatus } from "../../enum";
 import { ErrorInfo } from "../../../../error/ErrorInfo";
 
 @Resolver((returnType) => User)
@@ -33,9 +36,14 @@ export class UserResolver {
     return queryResult;
   }
 
-  @Mutation((returnType) => User)
-  async signup(@Arg("name") name: string): Promise<User> {
-    let queryResult: User | ErrorInfo = await UserService.save(name);
+  @Mutation((returnType) => RegisterOutput)
+  async register(@Arg("registerInput") registerInput: RegisterInput): Promise<RegisterOutput> {
+    const user: User = new User();
+    user.name = registerInput.name;
+    user.password = registerInput.password;
+    user.email = registerInput.email;
+
+    let queryResult: RegisterOutput | ErrorInfo = await UserService.register(user);
 
     if (queryResult instanceof ErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
 

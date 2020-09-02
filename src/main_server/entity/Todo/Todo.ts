@@ -1,32 +1,30 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn } from "typeorm";
+import { Entity, BaseEntity, Column, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn } from "typeorm";
 import { ObjectType, Field, Int, ID } from "type-graphql";
 
-import { User, TodoStatus, Validation } from "../index";
+import { User } from "../";
+import { TodoStatus } from "../../enum";
 
 @ObjectType()
 @Entity()
-export class Todo extends Validation {
+export class Todo extends BaseEntity {
   @Field(() => ID)
   @PrimaryGeneratedColumn()
   id: number;
 
   @Field(() => Int)
-  @Column("int")
+  @Column({ type: "int" })
   userId: number;
 
   @Field()
-  @Column("text")
+  @Column("varchar", { length: "100" })
   description: string;
 
   @Field()
-  @Column({
-    type: "enum",
-    enum: TodoStatus,
-  })
+  @Column({ type: "enum", enum: TodoStatus })
   status: TodoStatus;
 
   @Field()
-  @Column("text")
+  @Column({ type: "text" })
   deadline: string;
 
   @Field(() => Date)
