@@ -1,0 +1,14 @@
+{
+  "folders": [
+	{
+		"path": ".."
+	},
+	{
+		"path": "../../ts-react-tutorial"
+	},
+	{
+		"path": "../../web-service"
+	}
+],
+  "settings": {}
+}

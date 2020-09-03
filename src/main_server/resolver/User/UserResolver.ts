@@ -3,8 +3,7 @@ import { ApolloError } from "apollo-server-express";
 
 import { User, Todo } from "../../entity";
 import { UserService, TodoService } from "../../service";
-import { RegisterInput } from "../../dto";
-import { UserInfoOutput } from "../../dto";
+import { RegisterInput, UserInfoOutput, LoginInput, LoginOutput } from "../../dto";
 import { TodoStatus } from "../../enum";
 import { CommonErrorInfo } from "../../../../error/CommonErrorInfo";
 
@@ -12,8 +11,7 @@ import { CommonErrorInfo } from "../../../../error/CommonErrorInfo";
 export class UserResolver {
   @Query((returnType) => UserInfoOutput)
   async user(@Arg("id") id: number): Promise<UserInfoOutput> {
-    let queryResult: UserInfoOutput | CommonErrorInfo = await UserService.findOneById(id);
-
+    const queryResult: UserInfoOutput | CommonErrorInfo = await UserService.findOneById(id);
     if (queryResult instanceof CommonErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
 
     return queryResult;
@@ -43,8 +41,15 @@ export class UserResolver {
     newUser.password = registerInput.password;
     newUser.email = registerInput.email;
 
-    let queryResult: UserInfoOutput | CommonErrorInfo = await UserService.register(newUser);
+    const queryResult: UserInfoOutput | CommonErrorInfo = await UserService.register(newUser);
+    if (queryResult instanceof CommonErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
 
+    return queryResult;
+  }
+
+  @Mutation((returnType) => LoginOutput)
+  async login(@Arg("loginInput") loginInput: LoginInput): Promise<LoginOutput> {
+    const queryResult: LoginOutput | CommonErrorInfo = await UserService.login(loginInput.email, loginInput.password);
     if (queryResult instanceof CommonErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
 
     return queryResult;

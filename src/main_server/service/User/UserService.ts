@@ -1,6 +1,7 @@
 import { User } from "../../entity";
 import { UserProxy } from "../../proxy";
-import { UserInfoOutput } from "../../dto";
+import { UserInfoOutput, LoginOutput } from "../../dto";
+import { UserTokenPayload } from "../../interface";
 import { CommonErrorInfo } from "../../../../error/CommonErrorInfo";
 import { CommonErrorCode } from "../../../../error/CommonErrorCode";
 import { logger } from "../../../../config/winston";
@@ -22,10 +23,20 @@ export class UserService {
     "이미 존재하는 이메일입니다. 다른 이메일을 등록해 주십시오."
   );
 
+  private static invalidLoginInputException: CommonErrorInfo = new CommonErrorInfo(
+    CommonErrorCode.LOGIN_INPUT_INVALIDATION,
+    "이메일 또는 비밀번호를 다시 한 번 확인해 주십시오."
+  );
+
+  private static loginException: CommonErrorInfo = new CommonErrorInfo(
+    CommonErrorCode.INTERNAL_SERVER_ERROR,
+    "서버에 문제가 생겨 로그인에 실패했습니다. 잠시 후 다시 시도해 주십시오."
+  );
+
   /* Business Method */
   public static async findOneById(id: number): Promise<UserInfoOutput | CommonErrorInfo> {
     try {
-      let user: User = await User.findOne({ id: id });
+      const user: User = await User.findOne({ id: id });
       if (!user) return this.readException;
 
       return {
@@ -41,20 +52,20 @@ export class UserService {
 
   public static async register(newUser: User): Promise<UserInfoOutput | CommonErrorInfo> {
     try {
-      let createdUserId: number;
-      let existingUser = await User.findOne({ email: newUser.email });
-
+      // 1. 이미 기존에 등록된 유저라면, UK 중복 에러를 던진다.
+      const existingUser: User | undefined = await User.findOne({ email: newUser.email });
       if (existingUser) return this.emailConflictException;
 
-      let encryptedPassword = await UserProxy.encryptPassword(newUser.password);
+      // 2. 이메일 중복 확인이 끝나면 평문의 비밀번호를 해쉬화한다.
+      const encryptedPassword = await UserProxy.encryptPassword(newUser.password);
       newUser.password = encryptedPassword;
 
-      createdUserId = await (await User.insert(newUser)).identifiers[0].id;
-
+      // 3. 삽입 작업을 진행하고, 삽입 후에도 DB에 반영이 안 됐다면 save 에러이므로 예외 발생
+      const createdUserId: number = await (await User.insert(newUser)).identifiers[0].id;
       newUser = await User.findOne({ id: createdUserId });
-
       if (!newUser) return this.createException;
 
+      // 4. 모든 작업이 성공적으로 완료되면 삽입 결과물 리턴 !
       return {
         id: newUser.id,
         name: newUser.name,
@@ -65,6 +76,40 @@ export class UserService {
       logger.error(err);
 
       return this.createException;
+    }
+  }
+
+  public static async login(email: string, plainPassword: string): Promise<LoginOutput | CommonErrorInfo> {
+    try {
+      // 1. 요청된 이메일이 DB에 있는지 찾는다. => 없는 경우 제대로 입력을 요하는 에러 메시지를 던진다
+      const existingUser: User | undefined = await User.findOne({ email: email });
+      if (!existingUser) return this.invalidLoginInputException;
+
+      // 2. 이메일이 DB에 있으면 비밀번호가 일치하는지 확인한다. => 틀릴 경우에도 이메일과 비밀번호 중 무엇이 틀렸는지 정확히 알려주지 않는 에러 메시지를 던진다.
+      if (!(await UserProxy.confirmPassword(plainPassword, existingUser.password))) return this.invalidLoginInputException;
+
+      // 3. 이메일과 비밀번호의 검증을 끝마쳤다면 최종적으로 토큰을 생성한다. => 토큰 생성이 제대로 이뤄지지 않은 경우도 로그인 실패로 간주한다.
+      const payload: UserTokenPayload = {
+        id: existingUser.id,
+        email: existingUser.email,
+      };
+      const accessToken = await UserProxy.generateAccessToken(payload);
+      const refreshToken = await UserProxy.generateRefreshToken(payload);
+
+      if (!accessToken || !refreshToken) return this.loginException;
+
+      return {
+        id: existingUser.id,
+        name: existingUser.name,
+        email: existingUser.email,
+        role: existingUser.role,
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      };
+    } catch (err) {
+      logger.error(err);
+
+      return this.loginException;
     }
   }
 }

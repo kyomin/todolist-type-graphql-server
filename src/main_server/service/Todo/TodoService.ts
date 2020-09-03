@@ -155,7 +155,6 @@ export class TodoService {
   public static async save(newTodo: Todo): Promise<Todo | CommonErrorInfo> {
     try {
       const createdTodoId: number = await (await Todo.insert(newTodo)).identifiers[0].id;
-
       const createdTodo: Todo | undefined = await this.findOneById(createdTodoId);
       if (!createdTodo) return this.createException;
 
@@ -206,13 +205,14 @@ export class TodoService {
       const deleteWantedTodo: Todo | undefined = await this.findOneById(id);
       if (!deleteWantedTodo) return this.deleteException;
 
-      let deletedTodo: Todo = await Todo.remove(deleteWantedTodo);
+      const deletedTodo: Todo = await Todo.remove(deleteWantedTodo);
 
       if (await this.findOneById(id)) return this.deleteException;
 
       return deletedTodo;
     } catch (err) {
       logger.error(err);
+
       return this.deleteException;
     }
   }
