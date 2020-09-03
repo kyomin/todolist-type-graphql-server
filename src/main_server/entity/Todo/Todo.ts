@@ -31,6 +31,6 @@ export class Todo extends BaseEntity {
   @CreateDateColumn({ type: "timestamp" })
   createdAt: Date;
 
-  @ManyToOne((type) => User, (user) => user.todos)
+  @ManyToOne((type) => User, (user) => user.todos, { onDelete: "CASCADE" })
   user: User;
 }

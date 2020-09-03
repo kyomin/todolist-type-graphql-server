@@ -3,10 +3,11 @@ import { ApolloError } from "apollo-server-express";
 
 import { User, Todo } from "../../entity";
 import { MakeTodoInput } from "../../dto";
+import { UserInfoOutput } from "../../dto";
 import { TodoStatus } from "../../enum";
 import { TodoService, UserService } from "../../service";
-import { ErrorInfo } from "../../../../error/ErrorInfo";
-import { ErrorCode } from "../../../../error/ErrorCode";
+import { CommonErrorInfo } from "../../../../error/CommonErrorInfo";
+import { CommonErrorCode } from "../../../../error/CommonErrorCode";
 
 @Resolver(() => Todo)
 export class TodoResolver {
@@ -15,78 +16,78 @@ export class TodoResolver {
     @Arg("cursor", { nullable: true }) cursor?: number,
     @Arg("status", (type) => TodoStatus, { nullable: true }) status?: TodoStatus
   ): Promise<Todo[]> {
-    let queryResult: Todo[] | ErrorInfo;
+    let queryResult: Todo[] | CommonErrorInfo;
 
     if (!status) queryResult = await TodoService.findAll(cursor);
     else queryResult = await TodoService.findAllByStatus(cursor, status);
 
-    if (queryResult instanceof ErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
+    if (queryResult instanceof CommonErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
 
     return queryResult;
   }
 
-  @FieldResolver((returnType) => User)
-  async user(@Root() todo: Todo): Promise<User> {
+  @FieldResolver((returnType) => UserInfoOutput)
+  async user(@Root() todo: Todo): Promise<UserInfoOutput> {
     const { userId } = todo;
-    let queryResult: User | ErrorInfo = await UserService.findOneById(userId);
+    let queryResult: UserInfoOutput | CommonErrorInfo = await UserService.findOneById(userId);
 
-    if (queryResult instanceof ErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
+    if (queryResult instanceof CommonErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
 
     return queryResult;
   }
 
   @Mutation((returnType) => Todo)
   async makeTodo(@Arg("makeTodoInput") makeTodoInput: MakeTodoInput): Promise<Todo> {
-    const todo: Todo = new Todo();
-    todo.userId = makeTodoInput.userId;
-    todo.description = makeTodoInput.description;
-    todo.status = makeTodoInput.status;
-    todo.deadline = makeTodoInput.deadline;
+    const newTodo: Todo = new Todo();
+    newTodo.userId = makeTodoInput.userId;
+    newTodo.description = makeTodoInput.description;
+    newTodo.status = makeTodoInput.status;
+    newTodo.deadline = makeTodoInput.deadline;
 
-    let queryResult: Todo | ErrorInfo = await TodoService.save(todo);
+    let queryResult: Todo | CommonErrorInfo = await TodoService.save(newTodo);
 
-    if (queryResult instanceof ErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
+    if (queryResult instanceof CommonErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
 
     return queryResult;
   }
 
   @Mutation((returnType) => Todo)
   async updateTodoStatus(@Arg("id") id: number, @Arg("changedStatus", (type) => TodoStatus) changedStatus: TodoStatus): Promise<Todo> {
-    if (id < 1) throw new ApolloError("유효하지 않은 TODO의 ID 값입니다.", ErrorCode.ARGUMENT_VALIDATION_ERROR);
+    if (id < 1) throw new ApolloError("유효하지 않은 TODO의 ID 값입니다.", CommonErrorCode.ARGUMENT_VALIDATION_ERROR);
 
     const todo: Todo = new Todo();
     todo.id = id;
 
-    let queryResult: Todo | ErrorInfo = await TodoService.updateOneByStatus(id, changedStatus);
+    let queryResult: Todo | CommonErrorInfo = await TodoService.updateOneByStatus(id, changedStatus);
 
-    if (queryResult instanceof ErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
+    if (queryResult instanceof CommonErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
 
     return queryResult;
   }
 
   @Mutation((returnType) => Todo)
   async updateTodoDescription(@Arg("id") id: number, @Arg("newDescription") newDescription: string): Promise<Todo> {
-    if (id < 1) throw new ApolloError("유효하지 않은 TODO의 ID 값입니다.", ErrorCode.ARGUMENT_VALIDATION_ERROR);
-    if (newDescription.length < 5) throw new ApolloError("할 일 내용은 5글자 이상이어야 합니다.", ErrorCode.ARGUMENT_VALIDATION_ERROR);
-    if (newDescription.length > 100) throw new ApolloError("할 일 내용은 100자 이내여야 합니다.", ErrorCode.ARGUMENT_VALIDATION_ERROR);
+    if (id < 1) throw new ApolloError("유효하지 않은 TODO의 ID 값입니다.", CommonErrorCode.ARGUMENT_VALIDATION_ERROR);
+    if (newDescription.length < 5) throw new ApolloError("할 일 내용은 5글자 이상이어야 합니다.", CommonErrorCode.ARGUMENT_VALIDATION_ERROR);
+    if (newDescription.length > 100) throw new ApolloError("할 일 내용은 100자 이내여야 합니다.", CommonErrorCode.ARGUMENT_VALIDATION_ERROR);
 
-    let queryResult: Todo | ErrorInfo = await TodoService.updateOneByDescription(id, newDescription);
+    let queryResult: Todo | CommonErrorInfo = await TodoService.updateOneByDescription(id, newDescription);
 
-    if (queryResult instanceof ErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
+    if (queryResult instanceof CommonErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
 
     return queryResult;
   }
 
   @Mutation((returnType) => Todo)
   async deleteTodo(@Arg("id") id: number): Promise<Todo> {
-    if (id < 1) throw new ApolloError("유효하지 않은 TODO의 ID 값입니다.", ErrorCode.ARGUMENT_VALIDATION_ERROR);
+    if (id < 1) throw new ApolloError("유효하지 않은 TODO의 ID 값입니다.", CommonErrorCode.ARGUMENT_VALIDATION_ERROR);
 
     const todo: Todo = new Todo();
     todo.id = id;
 
-    let queryResult: Todo | ErrorInfo = await TodoService.deleteOneById(id);
+    let queryResult: Todo | CommonErrorInfo = await TodoService.deleteOneById(id);
 
-    if (queryResult instanceof ErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
+    if (queryResult instanceof CommonErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
 
     return queryResult;
   }

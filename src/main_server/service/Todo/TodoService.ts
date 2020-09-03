@@ -3,29 +3,29 @@ import { LessThan } from "typeorm";
 import { Todo } from "../../entity";
 import { TodoStatus } from "../../enum";
 import { GET_TODO_LIMIT } from "../../utils/constants";
-import { ErrorInfo } from "../../../../error/ErrorInfo";
-import { ErrorCode } from "../../../../error/ErrorCode";
+import { CommonErrorInfo } from "../../../../error/CommonErrorInfo";
+import { CommonErrorCode } from "../../../../error/CommonErrorCode";
 import { logger } from "../../../../config/winston";
 
 export class TodoService {
   /* Exception Variables */
-  private static readException: ErrorInfo = new ErrorInfo(
-    ErrorCode.INTERNAL_SERVER_ERROR,
+  private static readException: CommonErrorInfo = new CommonErrorInfo(
+    CommonErrorCode.INTERNAL_SERVER_ERROR,
     "서버에 문제가 생겨 목록 불러오기에 실패했습니다. 잠시 후 다시 시도해 주십시오."
   );
 
-  private static createException: ErrorInfo = new ErrorInfo(
-    ErrorCode.INTERNAL_SERVER_ERROR,
+  private static createException: CommonErrorInfo = new CommonErrorInfo(
+    CommonErrorCode.INTERNAL_SERVER_ERROR,
     "서버에 문제가 생겨 Todo 등록에 실패했습니다. 잠시 후 다시 시도해 주십시오."
   );
 
-  private static updateException: ErrorInfo = new ErrorInfo(
-    ErrorCode.INTERNAL_SERVER_ERROR,
+  private static updateException: CommonErrorInfo = new CommonErrorInfo(
+    CommonErrorCode.INTERNAL_SERVER_ERROR,
     "서버에 문제가 생겨 Todo 업데이트에 실패했습니다. 잠시 후 다시 시도해 주십시오."
   );
 
-  private static deleteException: ErrorInfo = new ErrorInfo(
-    ErrorCode.INTERNAL_SERVER_ERROR,
+  private static deleteException: CommonErrorInfo = new CommonErrorInfo(
+    CommonErrorCode.INTERNAL_SERVER_ERROR,
     "서버에 문제가 생겨 해당 Todo를 삭제할 수 없습니다. 잠시 후 다시 시도해 주십시오."
   );
 
@@ -34,7 +34,7 @@ export class TodoService {
     return await Todo.findOne({ id: id });
   }
 
-  public static async findAll(cursor?: number): Promise<Todo[] | ErrorInfo> {
+  public static async findAll(cursor?: number): Promise<Todo[] | CommonErrorInfo> {
     let findCondition;
 
     if (cursor) {
@@ -59,7 +59,7 @@ export class TodoService {
     }
   }
 
-  public static async findAllByStatus(cursor?: number, status?: TodoStatus): Promise<Todo[] | ErrorInfo> {
+  public static async findAllByStatus(cursor?: number, status?: TodoStatus): Promise<Todo[] | CommonErrorInfo> {
     let findCondition;
 
     if (cursor) {
@@ -90,7 +90,7 @@ export class TodoService {
     }
   }
 
-  public static async findAllByUserId(userId: number, cursor?: number): Promise<Todo[] | ErrorInfo> {
+  public static async findAllByUserId(userId: number, cursor?: number): Promise<Todo[] | CommonErrorInfo> {
     let findCondition;
 
     if (cursor) {
@@ -119,7 +119,7 @@ export class TodoService {
     }
   }
 
-  public static async findAllByUserIdAndStatus(userId: number, status: TodoStatus, cursor?: number): Promise<Todo[] | ErrorInfo> {
+  public static async findAllByUserIdAndStatus(userId: number, status: TodoStatus, cursor?: number): Promise<Todo[] | CommonErrorInfo> {
     let findCondition;
 
     if (cursor) {
@@ -152,76 +152,68 @@ export class TodoService {
     }
   }
 
-  public static async save(todo: Todo): Promise<Todo | ErrorInfo> {
-    let createdTodoId: number;
-
+  public static async save(newTodo: Todo): Promise<Todo | CommonErrorInfo> {
     try {
-      createdTodoId = await (await Todo.insert(todo)).identifiers[0].id;
+      const createdTodoId: number = await (await Todo.insert(newTodo)).identifiers[0].id;
+
+      const createdTodo: Todo | undefined = await this.findOneById(createdTodoId);
+      if (!createdTodo) return this.createException;
+
+      return createdTodo;
     } catch (err) {
       logger.error(err);
 
       return this.createException;
     }
-
-    const createdTodo: Todo | undefined = await this.findOneById(createdTodoId);
-
-    if (!createdTodo) return this.createException;
-
-    return createdTodo;
   }
 
-  public static async updateOneByStatus(id: number, changedStatus: TodoStatus): Promise<Todo | ErrorInfo> {
+  public static async updateOneByStatus(id: number, changedStatus: TodoStatus): Promise<Todo | CommonErrorInfo> {
     try {
       await Todo.update({ id: id }, { status: changedStatus });
+
+      const updatedTodo: Todo | undefined = await this.findOneById(id);
+      if (!updatedTodo) return this.updateException;
+
+      if (updatedTodo.status !== changedStatus) return this.updateException;
+
+      return updatedTodo;
     } catch (err) {
       logger.error(err);
 
       return this.updateException;
     }
-
-    const updatedTodo: Todo | undefined = await this.findOneById(id);
-    if (!updatedTodo) return this.updateException;
-
-    if (updatedTodo.status !== changedStatus) return this.updateException;
-
-    return updatedTodo;
   }
 
-  public static async updateOneByDescription(id: number, newDescription: string): Promise<Todo | ErrorInfo> {
+  public static async updateOneByDescription(id: number, newDescription: string): Promise<Todo | CommonErrorInfo> {
     try {
       await Todo.update({ id: id }, { description: newDescription });
+
+      const updatedTodo: Todo | undefined = await this.findOneById(id);
+      if (!updatedTodo) return this.updateException;
+
+      if (updatedTodo.description !== newDescription) return this.updateException;
+
+      return updatedTodo;
     } catch (err) {
       logger.error(err);
 
       return this.updateException;
     }
-
-    let updatedTodo: Todo | undefined = await this.findOneById(id);
-    if (!updatedTodo) return this.updateException;
-
-    if (updatedTodo.description !== newDescription) {
-      return this.updateException;
-    }
-
-    return updatedTodo;
   }
 
-  public static async deleteOneById(id: number): Promise<Todo | ErrorInfo> {
-    const deleteWantedTodo: Todo | undefined = await this.findOneById(id);
-
-    if (!deleteWantedTodo) return this.deleteException;
-
-    let deletedTodo: Todo;
+  public static async deleteOneById(id: number): Promise<Todo | CommonErrorInfo> {
     try {
-      deletedTodo = await Todo.remove(deleteWantedTodo);
+      const deleteWantedTodo: Todo | undefined = await this.findOneById(id);
+      if (!deleteWantedTodo) return this.deleteException;
+
+      let deletedTodo: Todo = await Todo.remove(deleteWantedTodo);
+
+      if (await this.findOneById(id)) return this.deleteException;
+
+      return deletedTodo;
     } catch (err) {
       logger.error(err);
-
       return this.deleteException;
     }
-
-    if (await this.findOneById(id)) return this.deleteException;
-
-    return deletedTodo;
   }
 }

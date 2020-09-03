@@ -3,6 +3,6 @@ import { MakeTodoInput } from "./input/Todo/MakeTodoInput";
 import { RegisterInput } from "./input/User/RegisterInput";
 
 /* Output DTO */
-import { RegisterOutput } from "./output/User/RegisterOutput";
+import { UserInfoOutput } from "./output/User/UserInfoOutput";
 
-export { MakeTodoInput, RegisterInput, RegisterOutput };
+export { MakeTodoInput, RegisterInput, UserInfoOutput };

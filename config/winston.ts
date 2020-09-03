@@ -52,3 +52,12 @@ if (process.env.NODE_ENV !== "production") {
     })
   );
 }
+
+// 에러 정보를 확실히 찍을 수 있도록 함수 재정의
+logger.error = (err) => {
+  if (err instanceof Error) {
+    logger.log({ level: "error", message: `${err.stack || err}` });
+  } else {
+    logger.log({ level: "error", message: err });
+  }
+};

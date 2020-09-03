@@ -3,7 +3,10 @@ import { ObjectType, Field } from "type-graphql";
 import { RoleStatus } from "../../../enum";
 
 @ObjectType()
-export class RegisterOutput {
+export class UserInfoOutput {
+  @Field()
+  id: number;
+
   @Field()
   name: string;
 

@@ -1,4 +1,4 @@
-export class ErrorInfo {
+export class CommonErrorInfo {
   code: string;
   message: string;
 
