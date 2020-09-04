@@ -1,4 +1,5 @@
 import * as express from "express";
+import * as bodyParser from "body-parser";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { createConnection } from "typeorm";
@@ -6,8 +7,9 @@ import "reflect-metadata";
 import { logger } from "../../config/winston";
 require("dotenv").config();
 
-/* Import GraphQL Resolvers */
 import { TodoResolver, UserResolver } from "./resolver";
+import { context, authChecker } from "./context";
+import { authMiddleware } from "./middleware";
 
 class MainServer {
   public app: express.Application;
@@ -56,20 +58,30 @@ const boostMainServer = async () => {
   }
 
   const port: number = 4000;
+  const path: string = "/graphql";
   const app: express.Application = new MainServer().app;
+
+  /* 미들웨어 등록 */
+  app.use(bodyParser.urlencoded({ extended: true }));
+  app.use(bodyParser.json());
+  app.use(authMiddleware);
+
   const schema = await buildSchema({
     resolvers: [TodoResolver, UserResolver],
+    authChecker,
+    authMode: "null",
   });
 
   const server = new ApolloServer({
     schema,
+    context,
     playground: true,
     formatError,
     debug: false,
   });
 
   // 미들웨어가 같은 경로에 마운트되도록 한다.
-  server.applyMiddleware({ app, path: "/graphql" });
+  server.applyMiddleware({ app, path });
 
   await app.listen({ port: port }, () => {
     logger.info(`Express & Apollo Main Server listening at ${port}`);

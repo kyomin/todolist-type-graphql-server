@@ -1,20 +1,25 @@
-import { Resolver, FieldResolver, Query, Mutation, Arg, Root } from "type-graphql";
+import { Resolver, FieldResolver, Query, Mutation, Arg, Root, Authorized, Ctx } from "type-graphql";
 import { ApolloError } from "apollo-server-express";
 
 import { Todo } from "../../entity";
 import { MakeTodoInput, UserInfoOutput } from "../../dto";
 import { TodoStatus } from "../../enum";
+import { Context } from "../../interface";
 import { TodoService, UserService } from "../../service";
 import { CommonErrorInfo } from "../../../../error/CommonErrorInfo";
 import { CommonErrorCode } from "../../../../error/CommonErrorCode";
 
 @Resolver(() => Todo)
 export class TodoResolver {
+  @Authorized()
   @Query((returnType) => [Todo!]!)
   async todos(
     @Arg("cursor", { nullable: true }) cursor?: number,
-    @Arg("status", (type) => TodoStatus, { nullable: true }) status?: TodoStatus
+    @Arg("status", (type) => TodoStatus, { nullable: true }) status?: TodoStatus,
+    @Ctx() context?: Context
   ): Promise<Todo[]> {
+    // 추후 이 곳에서 context를 타고 온 user 정보를 이용해서 해당 유저가 등록한 todo 리스트 뽑아내자!
+    // context.user 로 전달되는 데이터 뽑아내기 !!
     let queryResult: Todo[] | CommonErrorInfo;
 
     if (!status) queryResult = await TodoService.findAll(cursor);
