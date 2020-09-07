@@ -24,7 +24,7 @@ export class UserService {
   );
 
   private static invalidLoginInputException: CommonErrorInfo = new CommonErrorInfo(
-    CommonErrorCode.LOGIN_INPUT_INVALIDATION,
+    CommonErrorCode.INVALID_LOGIN_INPUT,
     "이메일 또는 비밀번호를 다시 한 번 확인해 주십시오."
   );
 
@@ -92,6 +92,7 @@ export class UserService {
       const payload: UserTokenPayload = {
         id: existingUser.id,
         email: existingUser.email,
+        role: existingUser.role,
       };
       const accessToken = await UserProxy.generateAccessToken(payload);
       const refreshToken = await UserProxy.generateRefreshToken(payload);

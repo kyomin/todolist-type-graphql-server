@@ -34,55 +34,12 @@ export class TodoService {
     return await Todo.findOne({ id: id });
   }
 
-  public static async findAll(cursor?: number): Promise<Todo[] | CommonErrorInfo> {
-    let findCondition;
-
-    if (cursor) {
-      findCondition = {
-        where: { id: LessThan(cursor) },
-        order: { id: "DESC" },
-        take: GET_TODO_LIMIT + 1,
-      };
-    } else {
-      findCondition = {
-        order: { id: "DESC" },
-        take: GET_TODO_LIMIT + 1,
-      };
-    }
-
+  /*
+    findAll과 findAllByStatus 메소드는 추후 관리자가 모든 TODO 목록을 브리핑하기 위함이다.
+  */
+  public static async findAll(): Promise<Todo[] | CommonErrorInfo> {
     try {
-      return await Todo.find(findCondition);
-    } catch (err) {
-      logger.error(err);
-
-      return this.readException;
-    }
-  }
-
-  public static async findAllByStatus(cursor?: number, status?: TodoStatus): Promise<Todo[] | CommonErrorInfo> {
-    let findCondition;
-
-    if (cursor) {
-      findCondition = {
-        where: {
-          id: LessThan(cursor),
-          status: status,
-        },
-        order: { id: "DESC" },
-        take: GET_TODO_LIMIT + 1,
-      };
-    } else {
-      findCondition = {
-        where: {
-          status: status,
-        },
-        order: { id: "DESC" },
-        take: GET_TODO_LIMIT + 1,
-      };
-    }
-
-    try {
-      return await Todo.find(findCondition);
+      return await Todo.find({ order: { userId: "ASC" } });
     } catch (err) {
       logger.error(err);
 

@@ -1,9 +1,10 @@
-import { Resolver, FieldResolver, Query, Mutation, Arg, Root, Authorized, Ctx } from "type-graphql";
+import { Resolver, FieldResolver, Query, Mutation, Arg, Root, Authorized, Ctx, UseMiddleware } from "type-graphql";
 import { ApolloError } from "apollo-server-express";
 
+import { checkAdmin } from "../../middleware/checkAdmin";
 import { Todo } from "../../entity";
 import { MakeTodoInput, UserInfoOutput } from "../../dto";
-import { TodoStatus } from "../../enum";
+import { TodoStatus, RoleStatus } from "../../enum";
 import { Context } from "../../interface";
 import { TodoService, UserService } from "../../service";
 import { CommonErrorInfo } from "../../../../error/CommonErrorInfo";
@@ -11,6 +12,18 @@ import { CommonErrorCode } from "../../../../error/CommonErrorCode";
 
 @Resolver(() => Todo)
 export class TodoResolver {
+  // 관리자가 회원들이 등록한 모든 TODO를 브리핑하기 위한 쿼리이다.
+  @Authorized()
+  @UseMiddleware(checkAdmin)
+  @Query((returnType) => [Todo!]!)
+  async allTodos(@Ctx() context?: Context): Promise<Todo[]> {
+    const queryResult: Todo[] | CommonErrorInfo = await TodoService.findAll();
+    if (queryResult instanceof CommonErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
+
+    return queryResult;
+  }
+
+  // 현재 로그인 한 유저가 등록한 TODO 목록을 불러오는 쿼리이다.
   @Authorized()
   @Query((returnType) => [Todo!]!)
   async todos(
@@ -18,12 +31,11 @@ export class TodoResolver {
     @Arg("status", (type) => TodoStatus, { nullable: true }) status?: TodoStatus,
     @Ctx() context?: Context
   ): Promise<Todo[]> {
-    // 추후 이 곳에서 context를 타고 온 user 정보를 이용해서 해당 유저가 등록한 todo 리스트 뽑아내자!
-    // context.user 로 전달되는 데이터 뽑아내기 !!
+    const userId: number = context.user.id;
     let queryResult: Todo[] | CommonErrorInfo;
 
-    if (!status) queryResult = await TodoService.findAll(cursor);
-    else queryResult = await TodoService.findAllByStatus(cursor, status);
+    if (!status) queryResult = await TodoService.findAllByUserId(userId, cursor);
+    else queryResult = await TodoService.findAllByUserIdAndStatus(userId, status, cursor);
 
     if (queryResult instanceof CommonErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
 
