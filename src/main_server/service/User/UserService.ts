@@ -2,6 +2,7 @@ import { User } from "../../entity";
 import { UserProxy } from "../../proxy";
 import { UserInfoOutput, LoginOutput } from "../../dto";
 import { UserTokenPayload } from "../../interface";
+import { RoleStatus } from "../../enum";
 import { CommonErrorInfo } from "../../../../error/CommonErrorInfo";
 import { CommonErrorCode } from "../../../../error/CommonErrorCode";
 import { logger } from "../../../../config/winston";
@@ -44,6 +45,32 @@ export class UserService {
   );
 
   /* Business Method */
+  public static async findAll(): Promise<UserInfoOutput[] | CommonErrorInfo> {
+    try {
+      const users: User[] = await User.find({
+        where: { role: RoleStatus.USER },
+        order: { id: "ASC" },
+      });
+      const userInfoOutputs: UserInfoOutput[] = [];
+
+      // Output용으로 데이터 가공!
+      users.forEach((user) => {
+        userInfoOutputs.push({
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        });
+      });
+
+      return userInfoOutputs;
+    } catch (err) {
+      logger.error(err);
+
+      return this.readException;
+    }
+  }
+
   public static async findOneById(id: number): Promise<UserInfoOutput | CommonErrorInfo> {
     try {
       const user: User = await User.findOne({ id: id });

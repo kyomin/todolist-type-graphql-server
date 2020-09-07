@@ -1,10 +1,11 @@
-import { Resolver, FieldResolver, Query, Mutation, Arg, Root, Authorized, Ctx } from "type-graphql";
+import { Resolver, FieldResolver, Query, Mutation, Arg, Root, Authorized, Ctx, UseMiddleware } from "type-graphql";
 import { ApolloError } from "apollo-server-express";
 
+import { checkAdmin } from "../../middleware/checkAdmin";
 import { User, Todo } from "../../entity";
 import { UserService, TodoService } from "../../service";
 import { RegisterInput, UserInfoOutput, LoginInput, LoginOutput } from "../../dto";
-import { TodoStatus, RoleStatus } from "../../enum";
+import { TodoStatus } from "../../enum";
 import { CommonErrorInfo } from "../../../../error/CommonErrorInfo";
 import { CommonErrorCode } from "../../../../error/CommonErrorCode";
 import { Context } from "../../interface";
@@ -30,8 +31,22 @@ export class UserResolver {
   }
 
   /*
+    관리자 권한으로 모든 회원들의 정보를 가져온다.
+    추후 클라이언트의 관리자 user 페이지에서 회원 관리를 위함이다.
+  */
+  @Authorized()
+  @UseMiddleware(checkAdmin)
+  @Query((returnType) => [UserInfoOutput!]!)
+  async allUsers(): Promise<UserInfoOutput[]> {
+    const queryResult: UserInfoOutput[] | CommonErrorInfo = await UserService.findAll();
+    if (queryResult instanceof CommonErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
+
+    return queryResult;
+  }
+
+  /*
     현재 로그인한 회원의 인증과 동시에 사용자 정보를 가져온다.
-    @Authorized에 의해 검증이 되고서 이곳에 진입하므로 context가 undefined일 경우는 없다.
+    @Authorized에 의해 authChecker 내에서 검증이 되고서 이곳에 진입하므로 context가 undefined일 경우는 없다.
   */
   @Authorized()
   @Query((returnType) => UserInfoOutput)
