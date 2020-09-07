@@ -123,14 +123,14 @@ export class TodoService {
     }
   }
 
-  public static async updateOneByStatus(id: number, changedStatus: TodoStatus): Promise<Todo | CommonErrorInfo> {
+  public static async updateStatus(id: number, newStatus: TodoStatus): Promise<Todo | CommonErrorInfo> {
     try {
-      await Todo.update({ id: id }, { status: changedStatus });
+      await Todo.update({ id: id }, { status: newStatus });
 
       const updatedTodo: Todo | undefined = await this.findOneById(id);
       if (!updatedTodo) return this.updateException;
 
-      if (updatedTodo.status !== changedStatus) return this.updateException;
+      if (updatedTodo.status !== newStatus) return this.updateException;
 
       return updatedTodo;
     } catch (err) {
@@ -140,7 +140,7 @@ export class TodoService {
     }
   }
 
-  public static async updateOneByDescription(id: number, newDescription: string): Promise<Todo | CommonErrorInfo> {
+  public static async updateDescription(id: number, newDescription: string): Promise<Todo | CommonErrorInfo> {
     try {
       await Todo.update({ id: id }, { description: newDescription });
 
@@ -157,7 +157,7 @@ export class TodoService {
     }
   }
 
-  public static async deleteOneById(id: number): Promise<Todo | CommonErrorInfo> {
+  public static async delete(id: number): Promise<Todo | CommonErrorInfo> {
     try {
       const deleteWantedTodo: Todo | undefined = await this.findOneById(id);
       if (!deleteWantedTodo) return this.deleteException;

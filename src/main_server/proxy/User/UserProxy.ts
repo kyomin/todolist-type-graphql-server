@@ -19,14 +19,12 @@ export class UserProxy {
     });
   }
 
-  public static async confirmPassword(plainPassword: string, encryptedPassword: string): Promise<boolean> {
+  public static async comparePassword(plainPassword: string, encryptedPassword: string): Promise<boolean> {
     return new Promise(async (resolve, reject) => {
       bcrypt.compare(plainPassword, encryptedPassword, function (err, result) {
         if (err) reject(err);
 
-        if (!result) resolve(false);
-
-        resolve(true);
+        resolve(result);
       });
     });
   }

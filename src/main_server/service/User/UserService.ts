@@ -18,6 +18,11 @@ export class UserService {
     "서버에 문제가 생겨 회원 등록에 실패했습니다. 잠시 후 다시 시도해 주십시오."
   );
 
+  private static updateException: CommonErrorInfo = new CommonErrorInfo(
+    CommonErrorCode.INTERNAL_SERVER_ERROR,
+    "서버에 문제가 생겨 회원 갱신에 실패했습니다. 잠시 후 다시 시도해 주십시오."
+  );
+
   private static emailConflictException: CommonErrorInfo = new CommonErrorInfo(
     CommonErrorCode.ALREADY_REGISTERED,
     "이미 존재하는 이메일입니다. 다른 이메일을 등록해 주십시오."
@@ -33,11 +38,16 @@ export class UserService {
     "서버에 문제가 생겨 로그인에 실패했습니다. 잠시 후 다시 시도해 주십시오."
   );
 
+  private static passwordUpdateException: CommonErrorInfo = new CommonErrorInfo(
+    CommonErrorCode.SAME_PASSWORD_VALUE,
+    "이전 비밀번호와 동일합니다. 새 비밀번호를 입력해 주십시오."
+  );
+
   /* Business Method */
   public static async findOneById(id: number): Promise<UserInfoOutput | CommonErrorInfo> {
     try {
       const user: User = await User.findOne({ id: id });
-      if (!user) return this.readException;
+      if (!user) return undefined;
 
       return {
         id: user.id,
@@ -86,7 +96,7 @@ export class UserService {
       if (!existingUser) return this.invalidLoginInputException;
 
       // 2. 이메일이 DB에 있으면 비밀번호가 일치하는지 확인한다. => 틀릴 경우에도 이메일과 비밀번호 중 무엇이 틀렸는지 정확히 알려주지 않는 에러 메시지를 던진다.
-      if (!(await UserProxy.confirmPassword(plainPassword, existingUser.password))) return this.invalidLoginInputException;
+      if (!(await UserProxy.comparePassword(plainPassword, existingUser.password))) return this.invalidLoginInputException;
 
       // 3. 이메일과 비밀번호의 검증을 끝마쳤다면 최종적으로 토큰을 생성한다. => 토큰 생성이 제대로 이뤄지지 않은 경우도 로그인 실패로 간주한다.
       const payload: UserTokenPayload = {
@@ -111,6 +121,30 @@ export class UserService {
       logger.error(err);
 
       return this.loginException;
+    }
+  }
+
+  public static async updatePassword(id: number, newPassword: string): Promise<UserInfoOutput | CommonErrorInfo> {
+    try {
+      const existingUser: User | undefined = await User.findOne({ id: id });
+
+      // 이전 비밀번호 그대로 입력해서 변경을 시도했다면 잘못된 입력 에러 리턴
+      if (await UserProxy.comparePassword(newPassword, existingUser.password)) return this.passwordUpdateException;
+
+      // 새 비밀번호 암호화
+      const encryptedNewPassword = await UserProxy.encryptPassword(newPassword);
+
+      await User.update({ id: id }, { password: encryptedNewPassword });
+
+      // 비밀번호 변경이 제대로 이뤄졌는지 확인한다. 변경되지 않았다면 DB 에러이다.
+      const updatedUser: User = await User.findOne({ id: id });
+      if (!(await UserProxy.comparePassword(newPassword, updatedUser.password))) return this.updateException;
+
+      return await this.findOneById(id);
+    } catch (err) {
+      logger.error(err);
+
+      return this.updateException;
     }
   }
 }

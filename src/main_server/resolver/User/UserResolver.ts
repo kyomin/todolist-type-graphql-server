@@ -6,6 +6,7 @@ import { UserService, TodoService } from "../../service";
 import { RegisterInput, UserInfoOutput, LoginInput, LoginOutput } from "../../dto";
 import { TodoStatus, RoleStatus } from "../../enum";
 import { CommonErrorInfo } from "../../../../error/CommonErrorInfo";
+import { CommonErrorCode } from "../../../../error/CommonErrorCode";
 import { Context } from "../../interface";
 
 @Resolver((returnType) => UserInfoOutput)
@@ -43,7 +44,7 @@ export class UserResolver {
     return queryResult;
   }
 
-  // 회원등록
+  // 회원등록(Create)
   @Mutation((returnType) => UserInfoOutput)
   async register(@Arg("registerInput") registerInput: RegisterInput): Promise<UserInfoOutput> {
     const newUser: User = new User();
@@ -61,6 +62,23 @@ export class UserResolver {
   @Mutation((returnType) => LoginOutput)
   async login(@Arg("loginInput") loginInput: LoginInput): Promise<LoginOutput> {
     const queryResult: LoginOutput | CommonErrorInfo = await UserService.login(loginInput.email, loginInput.password);
+    if (queryResult instanceof CommonErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
+
+    return queryResult;
+  }
+
+  // 비밀번호 변경(Update)
+  @Authorized()
+  @Mutation((returnType) => UserInfoOutput)
+  async updatePassword(@Arg("newPassword") newPassword: string, @Ctx() context?: Context): Promise<UserInfoOutput> {
+    if (newPassword.length < 8)
+      throw new ApolloError("패스워드가 너무 짧습니다. 8자 이상 입력해 주십시오.", CommonErrorCode.ARGUMENT_VALIDATION_ERROR);
+    if (newPassword.length > 100)
+      throw new ApolloError("패스워드가 너무 깁니다. 20자 이내로 작성해 주십시오.", CommonErrorCode.ARGUMENT_VALIDATION_ERROR);
+
+    const userId: number = context.user.id;
+
+    const queryResult: UserInfoOutput | CommonErrorInfo = await UserService.updatePassword(userId, newPassword);
     if (queryResult instanceof CommonErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
 
     return queryResult;
