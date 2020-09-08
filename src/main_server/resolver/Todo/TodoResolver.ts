@@ -53,10 +53,11 @@ export class TodoResolver {
     return queryResult;
   }
 
+  @Authorized()
   @Mutation((returnType) => Todo)
-  async makeTodo(@Arg("makeTodoInput") makeTodoInput: MakeTodoInput): Promise<Todo> {
+  async makeTodo(@Arg("makeTodoInput") makeTodoInput: MakeTodoInput, @Ctx() context?: Context): Promise<Todo> {
     const newTodo: Todo = new Todo();
-    newTodo.userId = makeTodoInput.userId;
+    newTodo.userId = context.user.id;
     newTodo.description = makeTodoInput.description;
     newTodo.status = makeTodoInput.status;
     newTodo.deadline = makeTodoInput.deadline;
@@ -67,6 +68,7 @@ export class TodoResolver {
     return queryResult;
   }
 
+  @Authorized()
   @Mutation((returnType) => Todo)
   async updateTodoStatus(@Arg("id") id: number, @Arg("newStatus", (type) => TodoStatus) newStatus: TodoStatus): Promise<Todo> {
     if (id < 1) throw new ApolloError("유효하지 않은 TODO의 ID 값입니다.", CommonErrorCode.ARGUMENT_VALIDATION_ERROR);
@@ -77,6 +79,7 @@ export class TodoResolver {
     return queryResult;
   }
 
+  @Authorized()
   @Mutation((returnType) => Todo)
   async updateTodoDescription(@Arg("id") id: number, @Arg("newDescription") newDescription: string): Promise<Todo> {
     if (id < 1) throw new ApolloError("유효하지 않은 TODO의 ID 값입니다.", CommonErrorCode.ARGUMENT_VALIDATION_ERROR);
@@ -89,6 +92,7 @@ export class TodoResolver {
     return queryResult;
   }
 
+  @Authorized()
   @Mutation((returnType) => Todo)
   async deleteTodo(@Arg("id") id: number): Promise<Todo> {
     if (id < 1) throw new ApolloError("유효하지 않은 TODO의 ID 값입니다.", CommonErrorCode.ARGUMENT_VALIDATION_ERROR);

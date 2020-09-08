@@ -7,7 +7,7 @@ import { logger } from "../../config/winston";
 require("dotenv").config();
 
 /* Import GraphQL Resolvers */
-import { AuthResolver } from "./resolvers";
+import { AuthResolver } from "./resolver";
 
 class AuthServer {
   public app: express.Application;
