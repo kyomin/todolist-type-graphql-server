@@ -63,4 +63,19 @@ export class AuthService {
       return this.authException;
     }
   }
+
+  public static async logout(existingRefreshToken: string): Promise<Token | CommonErrorInfo> {
+    try {
+      const deleteWantedToken: Token | undefined = await Token.findOne({ refreshToken: existingRefreshToken });
+      if (!deleteWantedToken) return this.authException;
+
+      const deletedToken: Token = await Token.remove(deleteWantedToken);
+
+      return deletedToken;
+    } catch (err) {
+      logger.error(err);
+
+      return this.authException;
+    }
+  }
 }

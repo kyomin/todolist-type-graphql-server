@@ -1,11 +1,9 @@
-import { Resolver, Query, Arg, Mutation } from "type-graphql";
+import { Resolver, Query, Arg, Mutation, Authorized } from "type-graphql";
 import { ApolloError } from "apollo-server-express";
-import * as jwt from "jsonwebtoken";
 import { Token } from "../entity";
 import { AuthService } from "../service";
 import { CommonErrorInfo } from "../../../error/CommonErrorInfo";
 import { CommonErrorCode } from "../../../error/CommonErrorCode";
-import { logger } from "../../../config/winston";
 
 @Resolver(() => String)
 export class AuthResolver {
@@ -30,6 +28,16 @@ export class AuthResolver {
     if (!existingRefreshToken) throw new ApolloError("다시 로그인해 주십시오.", CommonErrorCode.AUTHORIZATION_FAILED);
 
     const queryResult: string | CommonErrorInfo = await AuthService.token(existingRefreshToken);
+    if (queryResult instanceof CommonErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
+
+    return queryResult;
+  }
+
+  // 로그아웃을 해주는 곳이다. DB에서 refresh token을 지운다.
+  @Authorized()
+  @Mutation((returnType) => Token)
+  async logout(@Arg("existingRefreshToken") existingRefreshToken: string): Promise<Token> {
+    const queryResult: Token | CommonErrorInfo = await AuthService.logout(existingRefreshToken);
     if (queryResult instanceof CommonErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
 
     return queryResult;
