@@ -4,7 +4,7 @@ import { ApolloError } from "apollo-server-express";
 import { checkAdmin } from "../../middleware/checkAdmin";
 import { User, Todo } from "../../entity";
 import { UserService, TodoService } from "../../service";
-import { RegisterInput, UserInfoOutput, LoginInput, LoginOutput } from "../../dto";
+import { RegisterInput, UserInfoOutput, LoginInput, LoginOutput, DeleteOutput } from "../../dto";
 import { TodoStatus } from "../../enum";
 import { CommonErrorInfo } from "../../../../error/CommonErrorInfo";
 import { CommonErrorCode } from "../../../../error/CommonErrorCode";
@@ -88,12 +88,37 @@ export class UserResolver {
   async updatePassword(@Arg("newPassword") newPassword: string, @Ctx() context?: Context): Promise<UserInfoOutput> {
     if (newPassword.length < 8)
       throw new ApolloError("패스워드가 너무 짧습니다. 8자 이상 입력해 주십시오.", CommonErrorCode.ARGUMENT_VALIDATION_ERROR);
-    if (newPassword.length > 100)
+    if (newPassword.length > 20)
       throw new ApolloError("패스워드가 너무 깁니다. 20자 이내로 작성해 주십시오.", CommonErrorCode.ARGUMENT_VALIDATION_ERROR);
 
     const userId: number = context.user.id;
 
     const queryResult: UserInfoOutput | CommonErrorInfo = await UserService.updatePassword(userId, newPassword);
+    if (queryResult instanceof CommonErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
+
+    return queryResult;
+  }
+
+  // 회원 탈퇴(Delete). 현재 접속 중인 사용자가 자의로 탈퇴하는 경우를 위한 쿼리이다.
+  @Authorized()
+  @Mutation((returnType) => DeleteOutput)
+  async deleteMe(@Ctx() context?: Context): Promise<DeleteOutput> {
+    const userId: number = context.user.id;
+
+    const queryResult: DeleteOutput | CommonErrorInfo = await UserService.delete(userId);
+    if (queryResult instanceof CommonErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
+
+    return queryResult;
+  }
+
+  // 회원 강퇴(Delete). 관리자가 회원을 강등하는 경우이다. deleteUser
+  @Authorized()
+  @UseMiddleware(checkAdmin)
+  @Mutation((returnType) => DeleteOutput)
+  async deleteUser(@Arg("id") id: number): Promise<DeleteOutput> {
+    if (id < 1) throw new ApolloError("유효하지 않은 사용자의의 ID 값입니다.", CommonErrorCode.ARGUMENT_VALIDATION_ERROR);
+
+    const queryResult: DeleteOutput | CommonErrorInfo = await UserService.delete(id);
     if (queryResult instanceof CommonErrorInfo) throw new ApolloError(queryResult.getMessage(), queryResult.getCode());
 
     return queryResult;

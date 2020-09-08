@@ -1,6 +1,6 @@
 import { User } from "../../entity";
 import { UserProxy } from "../../proxy";
-import { UserInfoOutput, LoginOutput } from "../../dto";
+import { UserInfoOutput, LoginOutput, DeleteOutput } from "../../dto";
 import { UserTokenPayload } from "../../interface";
 import { RoleStatus } from "../../enum";
 import { CommonErrorInfo } from "../../../../error/CommonErrorInfo";
@@ -22,6 +22,11 @@ export class UserService {
   private static updateException: CommonErrorInfo = new CommonErrorInfo(
     CommonErrorCode.INTERNAL_SERVER_ERROR,
     "서버에 문제가 생겨 회원 갱신에 실패했습니다. 잠시 후 다시 시도해 주십시오."
+  );
+
+  private static deleteException: CommonErrorInfo = new CommonErrorInfo(
+    CommonErrorCode.INTERNAL_SERVER_ERROR,
+    "서버에 문제가 생겨 회원 삭제에 실패했습니다. 잠시 후 다시 시도해 주십시오."
   );
 
   private static emailConflictException: CommonErrorInfo = new CommonErrorInfo(
@@ -172,6 +177,26 @@ export class UserService {
       logger.error(err);
 
       return this.updateException;
+    }
+  }
+
+  public static async delete(id: number): Promise<DeleteOutput | CommonErrorInfo> {
+    try {
+      const deleteWantedUser: User | undefined = await User.findOne({ id: id });
+      if (!deleteWantedUser) return this.deleteException;
+
+      const deletedUser: User = await User.remove(deleteWantedUser);
+
+      return {
+        deleteSuccess: true,
+        name: deletedUser.name,
+        email: deletedUser.email,
+        role: deletedUser.role,
+      };
+    } catch (err) {
+      logger.error(err);
+
+      return this.deleteException;
     }
   }
 }

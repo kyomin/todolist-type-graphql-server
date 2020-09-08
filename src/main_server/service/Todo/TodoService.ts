@@ -34,9 +34,6 @@ export class TodoService {
     return await Todo.findOne({ id: id });
   }
 
-  /*
-    findAll과 findAllByStatus 메소드는 추후 관리자가 모든 TODO 목록을 브리핑하기 위함이다.
-  */
   public static async findAll(): Promise<Todo[] | CommonErrorInfo> {
     try {
       return await Todo.find({ order: { userId: "ASC" } });
